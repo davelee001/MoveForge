@@ -1,0 +1,25 @@
+# Build outputs
+build/
+*.mv
+*.mvt
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

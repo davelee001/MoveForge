@@ -1,0 +1,42 @@
+{
+  "name": "moveforge",
+  "version": "0.1.0",
+  "description": "A Next-Generation Developer Framework for the Movement Network",
+  "main": "src/index.js",
+  "bin": {
+    "moveforge": "./bin/moveforge.js"
+  },
+  "scripts": {
+    "start": "node bin/moveforge.js",
+    "test": "node bin/moveforge.js init test-project"
+  },
+  "keywords": [
+    "move",
+    "movement",
+    "blockchain",
+    "smart-contracts",
+    "cli",
+    "developer-tools"
+  ],
+  "author": "MoveForge Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "inquirer": "^8.2.5",
+    "fs-extra": "^11.2.0",
+    "axios": "^1.6.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/movement/moveforge"
+  },
+  "bugs": {
+    "url": "https://github.com/movement/moveforge/issues"
+  },
+  "homepage": "https://github.com/movement/moveforge#readme"
+}

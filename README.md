@@ -1,0 +1,379 @@
+# 🔥 MoveForge
+
+### A Next-Generation Developer Framework for the Movement Network
+
+**Build • Test • Simulate • Deploy Move smart contracts — all from one CLI**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)](https://nodejs.org/)
+
+MoveForge is an open-source developer framework designed to dramatically improve developer experience (DevEx) on the Movement Network. Inspired by Hardhat, Foundry, Tenderly, and Create-Next-App, MoveForge provides a unified, beginner-friendly, and powerful workflow for Move smart contract development.
+
+---
+
+## 🎯 Why MoveForge?
+
+Movement currently provides:
+- MoveVM + Move compiler
+- Testnet & Devnet environments
+- RPC endpoints
+- Python SDK
+- Builder kits and sample contracts
+
+However, the ecosystem **lacks a unified toolchain** that developers can use to:
+- ✅ Scaffold projects
+- ✅ Compile Move modules
+- ✅ Simulate transactions
+- ✅ Run tests
+- ✅ Deploy to testnet
+- ✅ Automate workflows
+
+**MoveForge fills this gap.**
+
+---
+
+## 🚀 Features
+
+### ✅ **1. Create Move project scaffolding**
+A single command generates a fully-structured Move dApp project:
+
+```bash
+moveforge init myapp
+```
+
+Creates:
+```
+myapp/
+ ├── move/
+ │    ├── sources/
+ │    │    └── HelloMove.move
+ │    ├── tests/
+ │    └── Move.toml
+ ├── scripts/
+ ├── build/
+ ├── moveforge.config.json
+ └── README.md
+```
+
+### ✅ **2. Build & compile Move smart contracts**
+Wraps the official Move compiler with improved output formatting:
+
+```bash
+moveforge build
+```
+
+### ✅ **3. Local transaction simulation (Tenderly-style)**
+Simulate a contract function call BEFORE sending it to the blockchain:
+
+```bash
+moveforge simulate --function initialize --args u64:100
+```
+
+Outputs:
+- ⛽ Gas estimate
+- 💾 Storage changes
+- 📊 Pre-state / post-state
+- ❌ Error logs (if any)
+
+### ✅ **4. One-command deployment to Movement Testnet**
+Instant deployment of Move modules:
+
+```bash
+moveforge deploy --network testnet
+```
+
+Outputs:
+- 🔗 Transaction hash
+- 📍 Deployment address
+- 🌐 Block explorer link
+
+---
+
+## 📦 Installation
+
+### Prerequisites
+
+1. **Node.js (16+)**
+   - Download: https://nodejs.org/
+
+2. **Aptos CLI** (includes Move compiler)
+   ```bash
+   # macOS/Linux
+   curl -fsSL "https://aptos.dev/scripts/install_cli.py" | python3
+   
+   # Or using Homebrew
+   brew install aptos
+   
+   # Verify installation
+   aptos --version
+   ```
+
+3. **Git**
+   - Download: https://git-scm.com/
+
+### Install MoveForge
+
+```bash
+# Clone the repository
+git clone https://github.com/movement/moveforge.git
+cd moveforge
+
+# Install dependencies
+npm install
+
+# Link globally (optional)
+npm link
+
+# Verify installation
+moveforge --version
+```
+
+---
+
+## 🧪 Quick Start
+
+### 1. Create a new project
+
+```bash
+moveforge init hello-move
+cd hello-move
+```
+
+### 2. Build the project
+
+```bash
+moveforge build
+```
+
+### 3. Simulate a function
+
+```bash
+moveforge simulate --function initialize
+```
+
+### 4. Deploy to testnet
+
+First, set up your account:
+
+```bash
+# Initialize Aptos account
+aptos init --network testnet
+
+# Fund your account from faucet
+# Visit: https://faucet.testnet.porto.movementlabs.xyz
+```
+
+Then deploy:
+
+```bash
+moveforge deploy --network testnet --key ~/.aptos/config.yaml
+```
+
+### 5. View on Explorer
+
+Your deployment will provide a link to view your contract on the Movement Explorer!
+
+---
+
+## 📚 Commands Reference
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `moveforge init <name>` | Create project scaffolding | `-t, --template` |
+| `moveforge build` | Compile Move modules | `-p, --path`, `-v, --verbose` |
+| `moveforge simulate` | Run local execution simulation | `-f, --function`, `-a, --args`, `-s, --sender` |
+| `moveforge deploy` | Deploy contract to Movement | `-n, --network`, `-k, --key`, `-m, --module` |
+
+### Examples
+
+```bash
+# Initialize with template
+moveforge init my-nft --template nft
+
+# Build with verbose output
+moveforge build --verbose
+
+# Simulate with arguments
+moveforge simulate --function mint --args address:0x1 u64:100
+
+# Deploy to devnet
+moveforge deploy --network devnet --key ./private-key.yaml
+```
+
+---
+
+## 🏗️ Project Structure
+
+```
+your-project/
+├── move/
+│   ├── sources/          # Move smart contract source files
+│   │   └── HelloMove.move
+│   ├── tests/            # Move unit tests
+│   └── Move.toml         # Move package configuration
+├── scripts/              # Deployment and utility scripts
+├── build/                # Compiled bytecode (auto-generated)
+├── moveforge.config.json # MoveForge configuration
+├── .gitignore
+└── README.md
+```
+
+---
+
+## ⚙️ Configuration
+
+The `moveforge.config.json` file contains project settings:
+
+```json
+{
+  "name": "my-project",
+  "version": "0.1.0",
+  "networks": {
+    "testnet": {
+      "rpc": "https://aptos.testnet.porto.movementlabs.xyz/v1",
+      "faucet": "https://faucet.testnet.porto.movementlabs.xyz",
+      "explorer": "https://explorer.movementnetwork.xyz"
+    }
+  },
+  "compiler": {
+    "version": "latest",
+    "optimize": true
+  },
+  "deployment": {
+    "defaultNetwork": "testnet",
+    "gasLimit": 100000
+  }
+}
+```
+
+---
+
+## 🧠 Design Philosophy
+
+### ⭐ Build Fast
+MoveForge is optimized for hackathons, startups, and new Move developers.
+
+### ⭐ Friendly Errors
+Move compiler errors are formatted cleanly for humans.
+
+### ⭐ One Ecosystem
+MoveForge connects:
+- Move compiler
+- Movement RPC
+- Python SDK
+- CLI tools
+
+### ⭐ Extensible
+Plugin support planned for v0.2:
+- Gas analytics
+- Static analysis
+- Fuzz testing
+- Coverage tools
+
+---
+
+## 🗺️ Roadmap
+
+### v0.1 (Hackathon) ✅
+- [x] `init`, `build`, `simulate`, `deploy` commands
+- [x] Movement testnet support
+- [x] Template system
+- [x] Beautiful CLI output
+
+### v0.2 (Coming Soon)
+- [ ] Plugin API
+- [ ] Test runner integration
+- [ ] Automatic contract verification
+- [ ] Multi-network support
+
+### v0.3 (Future)
+- [ ] Code coverage reports
+- [ ] Move linter
+- [ ] Debugging UI
+- [ ] CI/CD integration
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Development Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/movement/moveforge.git
+cd moveforge
+
+# Install dependencies
+npm install
+
+# Run in development mode
+npm start
+
+# Test the CLI
+node bin/moveforge.js init test-project
+```
+
+---
+
+## 📖 Resources
+
+- **Movement Developer Portal**: https://developer.movementnetwork.xyz/
+- **Movement Docs**: https://docs.movementnetwork.xyz/
+- **Move Language Book**: https://move-language.github.io/move/
+- **Aptos CLI Docs**: https://aptos.dev/tools/aptos-cli/
+
+---
+
+## 💰 Monetization (Freemium Model)
+
+### Free Tier
+- CLI is completely free and open-source
+- All core features available
+
+### Premium Plugins (Future)
+- Contract verifier
+- Gas profiler
+- Static analyzer
+- Multi-sig dev tools
+
+### Enterprise Tier (Future)
+- CI/CD integration
+- Hosted simulators
+- Team dashboards
+- Priority support
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with ❤️ for the Movement Network community.
+
+Inspired by:
+- [Hardhat](https://hardhat.org/) - Ethereum development environment
+- [Foundry](https://getfoundry.sh/) - Blazing fast Ethereum toolkit
+- [Tenderly](https://tenderly.co/) - Smart contract monitoring
+- [Create Next App](https://nextjs.org/) - React framework CLI
+
+---
+
+## 🔥 Built with MoveForge
+
+Share your projects built with MoveForge! Open a PR to add your project to this list.
+
+---
+
+<div align="center">
+
+**[Website](https://moveforge.dev)** • **[Documentation](https://docs.moveforge.dev)** • **[Twitter](https://twitter.com/moveforge)** • **[Discord](https://discord.gg/moveforge)**
+
+Made with 🔥 by the Movement community
+
+</div>
