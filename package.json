@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node bin/moveforge.js",
+    "web": "node server.js",
     "test": "node bin/moveforge.js init test-project"
   },
   "keywords": [
@@ -26,7 +27,8 @@
     "ora": "^5.4.1",
     "inquirer": "^8.2.5",
     "fs-extra": "^11.2.0",
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "express": "^4.18.2"
   },
   "engines": {
     "node": ">=16.0.0"
