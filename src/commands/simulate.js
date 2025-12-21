@@ -1,11 +1,11 @@
 /**
  * Simulate Command
- * Simulates a transaction locally (Tenderly-style)
+ * Simulates a transaction via Movement Network RPC (Tenderly-style)
  */
 
 const logger = require('../utils/logger');
 const rpcClient = require('../utils/rpcClient');
-const fs = require('../utils/fileSystem');
+const configUtil = require('../utils/config');
 
 async function simulateCommand(options) {
     try {
@@ -30,15 +30,43 @@ async function simulateCommand(options) {
         }
         logger.newLine();
 
-        // Load config to get module address
-        const configPath = fs.getAbsolutePath('moveforge.config.json');
-        const configExists = await fs.exists(configPath);
-
+        // Load config to determine network and (optionally) module address
         let moduleAddress = sender;
-        if (configExists) {
-            const config = await fs.readJson(configPath);
-            logger.debug(`Loaded config: ${config.name}`);
+        let network = 'testnet';
+        try {
+            const loadedConfig = await configUtil.loadConfig();
+            if (loadedConfig && loadedConfig.data) {
+                const data = loadedConfig.data;
+                logger.debug(`Loaded config: ${data.name}`);
+
+                const defaultNetwork = configUtil.getDefaultNetwork(data);
+                if (defaultNetwork) {
+                    network = defaultNetwork;
+                }
+
+                const networkConfig = configUtil.getNetworkConfig(data, network);
+                if (networkConfig) {
+                    if (networkConfig.rpc) {
+                        rpcClient.setCustomEndpoint(network, networkConfig.rpc);
+                    }
+                    if (networkConfig.moduleAddress) {
+                        moduleAddress = networkConfig.moduleAddress;
+                    }
+                }
+            }
+        } catch (_) {
+            // Errors already logged by config util; fall back to defaults
         }
+
+        // Apply network selection
+        try {
+            rpcClient.setNetwork(network);
+        } catch (error) {
+            logger.warning(`Failed to apply network from config: ${error.message}`);
+        }
+
+        logger.info(`Network: ${network}`);
+        logger.newLine();
 
         logger.startSpinner('Preparing simulation...');
 
@@ -47,71 +75,56 @@ async function simulateCommand(options) {
 
         // Create simulation transaction payload
         const payload = {
-            type: "entry_function_payload",
+            type: 'entry_function_payload',
             function: `${moduleAddress}::hello_move::${functionName}`,
             type_arguments: [],
             arguments: parsedArgs
         };
 
-        logger.updateSpinner('Running simulation...');
+        const simulationTxn = {
+            sender: sender,
+            sequence_number: '0',
+            max_gas_amount: '100000',
+            gas_unit_price: '100',
+            expiration_timestamp_secs: Math.floor(Date.now() / 1000 + 600).toString(),
+            payload: payload
+        };
+
+        logger.updateSpinner('Running simulation via RPC...');
 
         try {
-            // Create a dummy transaction for simulation
-            const simulationTxn = {
-                sender: sender,
-                sequence_number: "0",
-                max_gas_amount: "100000",
-                gas_unit_price: "100",
-                expiration_timestamp_secs: Math.floor(Date.now() / 1000 + 600).toString(),
-                payload: payload
-            };
+            const simulation = await rpcClient.simulateTransaction(simulationTxn);
 
-            // Note: This is a mock simulation since we don't have actual account credentials
-            // In a real implementation, this would call the RPC simulate endpoint
             logger.succeedSpinner('Simulation completed');
             logger.newLine();
 
-            // Display simulation results (mock data for demonstration)
+            if (!simulation || (Array.isArray(simulation) && simulation.length === 0)) {
+                throw new Error('Empty simulation response from RPC');
+            }
+
+            const sim = Array.isArray(simulation) ? simulation[0] : simulation;
+
             displaySimulationResults({
-                success: true,
-                gasUsed: '850',
-                gasUnitPrice: '100',
-                vmStatus: 'Executed successfully',
-                changes: [
-                    {
-                        type: 'write_resource',
-                        address: sender,
-                        resource: 'Greeting',
-                        data: {
-                            message: 'Hello, Movement Network!',
-                            counter: 1
-                        }
-                    }
-                ],
-                events: [
-                    {
-                        type: 'GreetingEvent',
-                        data: {
-                            message: 'Hello, Movement Network!',
-                            counter: 1
-                        }
-                    }
-                ]
+                success: sim.success,
+                gasUsed: sim.gas_used || '0',
+                gasUnitPrice: sim.gas_unit_price || '0',
+                vmStatus: sim.vm_status || 'Unknown',
+                changes: sim.changes || [],
+                events: sim.events || []
             });
 
             logger.newLine();
-            logger.info('💡 Note: This is a local simulation. No transaction was submitted to the blockchain.');
+            logger.info('💡 Note: This was a simulation call. No transaction was submitted to the blockchain.');
             logger.newLine();
 
             logger.section('🚀 Next Steps');
             logger.list([
                 'Review the simulation results above',
-                'If everything looks good, deploy with: moveforge deploy --network testnet',
+                'If everything looks good, deploy with the Aptos CLI (see deploy command output)',
                 'Or modify your contract and rebuild: moveforge build'
             ], '→');
 
             logger.newLine();
-
         } catch (error) {
             logger.failSpinner('Simulation failed');
             logger.newLine();
@@ -132,16 +145,15 @@ async function simulateCommand(options) {
                     error.message,
                     '',
                     '💡 Tips:',
-                    '• Ensure your contract is compiled: moveforge build',
+                    '• Ensure your contract is compiled and deployed',
                     '• Check function name and arguments',
-                    '• Verify network connectivity'
+                    '• Verify network connectivity and RPC endpoint'
                 ]);
             }
 
             logger.newLine();
             process.exit(1);
         }
-
     } catch (error) {
         logger.error('Simulation command failed');
         logger.error(error.message);
@@ -153,7 +165,7 @@ async function simulateCommand(options) {
  * Parse command-line arguments into proper types
  */
 function parseArguments(args) {
-    return args.map(arg => {
+    return args.map((arg) => {
         // Format: type:value (e.g., u64:100, address:0x1, bool:true)
         if (arg.includes(':')) {
             const [type, value] = arg.split(':');
@@ -166,7 +178,6 @@ function parseArguments(args) {
                 case 'bool':
                     return value.toLowerCase() === 'true';
                 case 'address':
-                    return value;
                 case 'string':
                     return value;
                 default:
@@ -195,7 +206,7 @@ function displaySimulationResults(results) {
     // Gas information
     logger.keyValue('Gas Used', results.gasUsed, 'yellow');
     logger.keyValue('Gas Price', results.gasUnitPrice, 'yellow');
-    const totalCost = parseInt(results.gasUsed) * parseInt(results.gasUnitPrice);
+    const totalCost = parseInt(results.gasUsed || '0', 10) * parseInt(results.gasUnitPrice || '0', 10);
     logger.keyValue('Total Cost', `${totalCost} Octas`, 'yellow');
 
     // VM Status
@@ -207,8 +218,12 @@ function displaySimulationResults(results) {
         logger.section('💾 Storage Changes');
         results.changes.forEach((change, index) => {
             logger.info(`Change ${index + 1}: ${change.type}`);
-            logger.keyValue('  Address', change.address, 'cyan');
-            logger.keyValue('  Resource', change.resource, 'cyan');
+            if (change.address) {
+                logger.keyValue('  Address', change.address, 'cyan');
+            }
+            if (change.resource || (change.data && change.data.type)) {
+                logger.keyValue('  Resource', change.resource || change.data.type, 'cyan');
+            }
             if (change.data) {
                 logger.info('  Data:');
                 Object.entries(change.data).forEach(([key, value]) => {
@@ -223,7 +238,7 @@ function displaySimulationResults(results) {
         logger.newLine();
         logger.section('📢 Events Emitted');
         results.events.forEach((event, index) => {
-            logger.info(`Event ${index + 1}: ${event.type}`);
+            logger.info(`Event ${index + 1}: ${event.type || 'event'}`);
             if (event.data) {
                 Object.entries(event.data).forEach(([key, value]) => {
                     logger.keyValue(`  ${key}`, JSON.stringify(value), 'white');

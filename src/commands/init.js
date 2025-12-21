@@ -4,7 +4,6 @@
  */
 
 const path = require('path');
-const inquirer = require('inquirer');
 const logger = require('../utils/logger');
 const fs = require('../utils/fileSystem');
 
@@ -102,13 +101,14 @@ async function initCommand(projectName, options) {
  * Generate Move.toml content
  */
 function generateMoveToml(projectName) {
+    const packageName = sanitizeIdentifier(projectName);
     return `[package]
-name = "${projectName}"
+name = "${packageName}"
 version = "0.1.0"
 authors = ["Your Name <your.email@example.com>"]
 
 [addresses]
-${projectName} = "_"
+${packageName} = "_"
 
 [dependencies]
 AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "main" }
@@ -123,8 +123,8 @@ MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "a
  * Generate sample Move contract
  */
 function generateSampleContract(projectName) {
-    const moduleName = projectName.replace(/-/g, '_');
-    return `module ${projectName}::hello_move {
+    const moduleName = sanitizeIdentifier(projectName);
+    return `module ${moduleName}::hello_move {
     use std::signer;
     use std::string::{Self, String};
     use aptos_framework::event;
@@ -171,7 +171,7 @@ function generateSampleContract(projectName) {
         (greeting.message, greeting.counter)
     }
 
-    #[test(account = @${projectName})]
+    #[test(account = @${moduleName})]
     public fun test_greeting(account: &signer) acquires Greeting {
         initialize(account);
         let addr = signer::address_of(account);
@@ -184,6 +184,23 @@ function generateSampleContract(projectName) {
     }
 }
 `;
+}
+
+/**
+ * Sanitize a project name into a valid Move identifier
+ */
+function sanitizeIdentifier(name) {
+    let id = name.replace(/[^a-zA-Z0-9_]/g, '_');
+
+    if (/^[0-9]/.test(id)) {
+        id = '_' + id;
+    }
+
+    if (!id) {
+        id = 'move_project';
+    }
+
+    return id;
 }
 
 /**

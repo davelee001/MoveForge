@@ -1,4 +1,4 @@
-module test-dapp::hello_move {
+module test_dapp::hello_move {
     use std::signer;
     use std::string::{Self, String};
     use aptos_framework::event;
@@ -45,7 +45,7 @@ module test-dapp::hello_move {
         (greeting.message, greeting.counter)
     }
 
-    #[test(account = @test-dapp)]
+    #[test(account = @test_dapp)]
     public fun test_greeting(account: &signer) acquires Greeting {
         initialize(account);
         let addr = signer::address_of(account);

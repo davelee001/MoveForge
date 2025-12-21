@@ -7,12 +7,31 @@ const logger = require('../utils/logger');
 const rpcClient = require('../utils/rpcClient');
 const fs = require('../utils/fileSystem');
 const path = require('path');
+const configUtil = require('../utils/config');
 
 async function deployCommand(options) {
     try {
         logger.header('🚀 Deploying to Movement Network');
 
-        const network = options.network || 'testnet';
+        // Load configuration and resolve network
+        let network = options.network || 'testnet';
+        try {
+            const loadedConfig = await configUtil.loadConfig();
+            if (loadedConfig && loadedConfig.data) {
+                const data = loadedConfig.data;
+                const defaultNetwork = configUtil.getDefaultNetwork(data);
+                if (!options.network && defaultNetwork) {
+                    network = defaultNetwork;
+                }
+
+                const networkConfig = configUtil.getNetworkConfig(data, network);
+                if (networkConfig && networkConfig.rpc) {
+                    rpcClient.setCustomEndpoint(network, networkConfig.rpc);
+                }
+            }
+        } catch (_) {
+            // Config errors are logged by config util; continue with defaults
+        }
 
         // Set network
         rpcClient.setNetwork(network);
@@ -30,102 +49,18 @@ async function deployCommand(options) {
             process.exit(1);
         }
 
-        // Check for private key
-        if (!options.key) {
-            logger.warning('No private key provided. Deployment requires authentication.');
-            logger.newLine();
-            logger.info('To deploy, you need to:');
-            logger.list([
-                'Create an account on Movement Network',
-                'Fund your account from the faucet',
-                'Export your private key',
-                'Use --key flag to specify the key file path'
-            ], '→');
-            logger.newLine();
-            logger.info('Example: moveforge deploy --network testnet --key ~/.aptos/config.yaml');
-            logger.newLine();
+        // At this stage, deploy is a guided demo only
+        logger.warning('Real on-chain deployment is not yet implemented in this version of MoveForge.');
+        logger.info('The steps below show how to deploy using the Aptos CLI today.');
+        logger.newLine();
 
-            // Show mock deployment for demonstration
-            logger.info('📝 Showing example deployment output:');
-            logger.newLine();
+        showMockDeployment(network);
 
-            showMockDeployment(network);
+        logger.newLine();
+        logger.info('💡 Use the Aptos CLI commands above to publish your Move package.');
+        logger.newLine();
 
-            logger.newLine();
-            logger.warning('This is a demonstration. To perform actual deployment, provide a private key.');
-            logger.newLine();
-
-            return;
-        }
-
-        // If key is provided, attempt deployment
-        logger.startSpinner('Preparing deployment...');
-
-        // Read key file
-        const keyPath = fs.getAbsolutePath(options.key);
-        const keyExists = await fs.exists(keyPath);
-
-        if (!keyExists) {
-            logger.failSpinner('Key file not found');
-            logger.error(`Private key file not found at: ${keyPath}`);
-            process.exit(1);
-        }
-
-        logger.updateSpinner('Reading compiled modules...');
-
-        // Find compiled modules
-        const buildContents = await fs.listFiles(buildPath);
-        if (buildContents.length === 0) {
-            logger.failSpinner('No compiled modules found');
-            logger.error('Build directory is empty. Please run "moveforge build" first.');
-            process.exit(1);
-        }
-
-        logger.updateSpinner('Submitting deployment transaction...');
-
-        // Note: Actual deployment would require the Aptos SDK or Python script
-        // For the hackathon version, we'll show the process
-
-        setTimeout(() => {
-            logger.succeedSpinner('Deployment transaction submitted!');
-            logger.newLine();
-
-            // Generate mock transaction hash
-            const txHash = '0x' + Array(64).fill(0).map(() =>
-                Math.floor(Math.random() * 16).toString(16)
-            ).join('');
-
-            const deployAddress = '0x' + Array(64).fill(0).map(() =>
-                Math.floor(Math.random() * 16).toString(16)
-            ).join('');
-
-            logger.section('✅ Deployment Successful');
-            logger.keyValue('Transaction Hash', txHash, 'green');
-            logger.keyValue('Module Address', deployAddress, 'cyan');
-            logger.keyValue('Network', network, 'yellow');
-            logger.newLine();
-
-            logger.section('🔗 Explorer Links');
-            const explorerUrl = rpcClient.getExplorerUrl(txHash);
-            const accountUrl = rpcClient.getAccountExplorerUrl(deployAddress);
-
-            logger.keyValue('Transaction', explorerUrl, 'cyan');
-            logger.keyValue('Account', accountUrl, 'cyan');
-            logger.newLine();
-
-            logger.success('Your Move module has been deployed! 🎉');
-            logger.newLine();
-
-            logger.section('🚀 Next Steps');
-            logger.list([
-                'View your transaction on the explorer',
-                'Interact with your contract using the Movement SDK',
-                'Build a frontend application',
-                'Share your dApp with the community!'
-            ], '→');
-
-            logger.newLine();
-        }, 2000);
+        return;
 
     } catch (error) {
         logger.error('Deployment command failed');
@@ -151,8 +86,7 @@ function showMockDeployment(network) {
     logger.info('Step 2: Deploy Module');
     logger.list([
         'Compile: moveforge build',
-        'Deploy: aptos move publish --package-dir ./move',
-        'Or use: moveforge deploy --network testnet --key ~/.aptos/config.yaml'
+        'Deploy: aptos move publish --package-dir ./move'
     ], '  ');
 
     logger.newLine();

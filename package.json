@@ -2,7 +2,7 @@
   "name": "moveforge",
   "version": "0.1.0",
   "description": "A Next-Generation Developer Framework for the Movement Network",
-  "main": "src/index.js",
+  "main": "bin/moveforge.js",
   "bin": {
     "moveforge": "./bin/moveforge.js"
   },

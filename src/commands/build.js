@@ -6,12 +6,31 @@
 const logger = require('../utils/logger');
 const compiler = require('../utils/compiler');
 const fs = require('../utils/fileSystem');
+const configUtil = require('../utils/config');
 
 async function buildCommand(options) {
     try {
         logger.header('🔨 Building Move Project');
 
         const projectPath = options.path || './move';
+
+        // Load optional project configuration
+        let configData = null;
+        try {
+            const loadedConfig = await configUtil.loadConfig();
+            if (loadedConfig && loadedConfig.data) {
+                configData = loadedConfig.data;
+                if (configData.compiler) {
+                    logger.debug(
+                        `Using compiler settings from config: version=${configData.compiler.version || 'latest'}, optimize=${
+                            configData.compiler.optimize ? 'true' : 'false'
+                        }`
+                    );
+                }
+            }
+        } catch (_) {
+            // Invalid config is already reported by config util; continue with defaults
+        }
 
         // Check if compiler is installed
         logger.startSpinner('Checking Move compiler...');
