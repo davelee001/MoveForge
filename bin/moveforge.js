@@ -14,6 +14,10 @@ const initCommand = require('../src/commands/init');
 const buildCommand = require('../src/commands/build');
 const simulateCommand = require('../src/commands/simulate');
 const deployCommand = require('../src/commands/deploy');
+const testCommand = require('../src/commands/test');
+const formatCommand = require('../src/commands/format');
+const lintCommand = require('../src/commands/lint');
+const networkCommand = require('../src/commands/network');
 
 const program = new Command();
 
@@ -70,6 +74,39 @@ program
   .option('-k, --key <path>', 'Path to private key file')
   .option('-m, --module <path>', 'Path to compiled module')
   .action(deployCommand);
+
+program
+  .command('test')
+  .description('Run Move unit tests')
+  .option('-p, --path <path>', 'Path to Move project', './move')
+  .option('-v, --verbose', 'Verbose output')
+  .action(testCommand);
+
+program
+  .command('format')
+  .description('Format Move code files')
+  .option('-p, --path <path>', 'Path to Move project', './move')
+  .option('-c, --check', 'Check if files need formatting (don\'t write)')
+  .action(formatCommand);
+
+program
+  .command('lint')
+  .description('Lint Move code for best practices')
+  .option('-p, --path <path>', 'Path to Move project', './move')
+  .option('-f, --fix', 'Automatically fix issues where possible')
+  .action(lintCommand);
+
+// Network management commands
+const networkProgram = program
+  .command('network <action>')
+  .description('Manage blockchain networks')
+  .argument('[name]', 'Network name');
+
+networkProgram
+  .option('--url <url>', 'RPC URL for the network')
+  .option('--chain-id <id>', 'Chain ID for the network')
+  .option('--faucet <url>', 'Faucet URL for the network')
+  .action(networkCommand);
 
 // Global error handler
 process.on('unhandledRejection', (error) => {
