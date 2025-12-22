@@ -183,6 +183,10 @@ Your deployment will provide a link to view your contract on the Movement Explor
 | `moveforge build` | Compile Move modules | `-p, --path`, `-v, --verbose` |
 | `moveforge simulate` | Run local execution simulation | `-f, --function`, `-a, --args`, `-s, --sender` |
 | `moveforge deploy` | Deploy contract to Movement | `-n, --network`, `-k, --key`, `-m, --module` |
+| `moveforge test` | Run Move unit tests | `-p, --path`, `-v, --verbose` |
+| `moveforge format` | Format `.move` files | `-p, --path`, `-c, --check` |
+| `moveforge lint` | Lint Move code | `-p, --path`, `-f, --fix` |
+| `moveforge network <action>` | Manage networks | `--url`, `--chain-id`, `--faucet` |
 
 ### Examples
 
@@ -198,6 +202,20 @@ moveforge simulate --function mint --args address:0x1 u64:100
 
 # Deploy to devnet
 moveforge deploy --network devnet --key ./private-key.yaml
+ 
+# Run tests for a project
+moveforge test -p ./move --verbose
+
+# Format Move files (check-only)
+moveforge format -p ./move --check
+
+# Lint Move source code
+moveforge lint -p ./move
+
+# Manage networks
+moveforge network list
+moveforge network add movement --url https://aptos.testnet.porto.movementlabs.xyz/v1 --chain-id 43
+moveforge network switch movement
 ```
 
 ---
@@ -217,6 +235,26 @@ your-project/
 ├── .gitignore
 └── README.md
 ```
+
+---
+
+## 🪟 Windows Setup Notes
+
+MoveForge works great on Windows. A few tips:
+
+- Install Node.js 16+ and ensure `node` and `npm` are on PATH.
+- Install the Aptos CLI (needed for `build` and `test`):
+
+```powershell
+# PowerShell
+python --version  # Ensure Python is available
+curl -fsSL "https://aptos.dev/scripts/install_cli.py" | python
+aptos --version   # Verify
+```
+
+- If `aptos` is not recognized, add its install directory to PATH or re-open your terminal.
+- Commands that do NOT require Aptos CLI: `format`, `lint`, `network`.
+- Use PowerShell without piping when testing commands (e.g., `node bin/moveforge.js --help`).
 
 ---
 
@@ -377,3 +415,4 @@ Share your projects built with MoveForge! Open a PR to add your project to this 
 Made with 🔥 by the Movement community
 
 </div>
+
