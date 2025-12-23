@@ -8,7 +8,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // Middleware
 app.use(express.json());
@@ -55,7 +55,22 @@ app.get('/api/version', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+// Health check
+app.get('/health', (_req, res) => {
+    res.json({ ok: true, port: PORT });
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🔥 MoveForge Web Interface running at http://localhost:${PORT}`);
     console.log(`Open your browser to get started!`);
+});
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use. Try setting PORT to a different value.`);
+        console.error(`   Example: set PORT=3001 && npm run web`);
+    } else {
+        console.error('❌ Server failed to start:', err.message);
+    }
+    process.exit(1);
 });
