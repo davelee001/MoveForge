@@ -7,6 +7,7 @@ const logger = require('../utils/logger');
 const rpcClient = require('../utils/rpcClient');
 const fs = require('../utils/fileSystem');
 const path = require('path');
+const { spawn } = require('child_process');
 const configUtil = require('../utils/config');
 
 async function deployCommand(options) {
@@ -40,25 +41,43 @@ async function deployCommand(options) {
         logger.info(`RPC Endpoint: ${rpcClient.getEndpoint()}`);
         logger.newLine();
 
-        // Check if build exists
-        const buildPath = fs.getAbsolutePath('build');
-        const buildExists = await fs.exists(buildPath);
-
-        if (!buildExists) {
-            logger.error('Build directory not found. Please run "moveforge build" first.');
+        // Check if Move package exists
+        const packageDir = options.module || './move';
+        const moveTomlPath = path.join(packageDir, 'Move.toml');
+        const hasMovePackage = await fs.exists(fs.getAbsolutePath(moveTomlPath));
+        if (!hasMovePackage) {
+            logger.error(`Move package not found at ${packageDir}. Use --module to specify package dir.`);
             process.exit(1);
         }
 
-        // At this stage, deploy is a guided demo only
-        logger.warning('Real on-chain deployment is not yet implemented in this version of MoveForge.');
-        logger.info('The steps below show how to deploy using the Aptos CLI today.');
-        logger.newLine();
+        // Warn about unused key option
+        if (options.key) {
+            logger.warning('The --key option is not used directly. Ensure your Aptos CLI profile is configured (aptos init).');
+        }
 
-        showMockDeployment(network);
+        // Compose Aptos CLI publish command
+        const args = ['move', 'publish', '--package-dir', packageDir, '--assume-yes'];
 
-        logger.newLine();
-        logger.info('💡 Use the Aptos CLI commands above to publish your Move package.');
-        logger.newLine();
+        // Prefer using RPC URL from config/network
+        const rpc = rpcClient.getEndpoint();
+        if (rpc) {
+            args.push('--url', rpc);
+        }
+
+        // Gas limit from config if available
+        try {
+            const loaded = await configUtil.loadConfig();
+            if (loaded && loaded.data && loaded.data.deployment && loaded.data.deployment.gasLimit) {
+                args.push('--max-gas', String(loaded.data.deployment.gasLimit));
+            }
+        } catch (_) {}
+
+        logger.section('📦 Publishing Move package');
+        logger.keyValue('Package dir', packageDir, 'cyan');
+        logger.keyValue('Network', network, 'yellow');
+        logger.keyValue('RPC', rpc, 'yellow');
+
+        await runAptos(args);
 
         return;
 
@@ -72,37 +91,51 @@ async function deployCommand(options) {
 /**
  * Show mock deployment for demonstration
  */
-function showMockDeployment(network) {
-    logger.section('📋 Deployment Process');
+async function runAptos(args) {
+    return new Promise((resolve) => {
+        const spinner = logger.startSpinner('Publishing via Aptos CLI...');
+        const child = spawn('aptos', args, { stdio: ['ignore', 'pipe', 'pipe'] });
 
-    logger.info('Step 1: Account Setup');
-    logger.list([
-        'Create account: aptos init --network testnet',
-        'Fund account: Visit https://faucet.testnet.porto.movementlabs.xyz',
-        'Verify balance: aptos account list'
-    ], '  ');
+        let stdout = '';
+        let stderr = '';
 
-    logger.newLine();
-    logger.info('Step 2: Deploy Module');
-    logger.list([
-        'Compile: moveforge build',
-        'Deploy: aptos move publish --package-dir ./move'
-    ], '  ');
+        child.stdout.on('data', (d) => { stdout += d.toString(); });
+        child.stderr.on('data', (d) => { stderr += d.toString(); });
 
-    logger.newLine();
-    logger.section('📊 Example Deployment Output');
+        child.on('error', (err) => {
+            logger.failSpinner('Failed to start Aptos CLI');
+            if (err.code === 'ENOENT') {
+                logger.error('Aptos CLI not found. Install it and ensure it is on PATH.');
+                logger.info('Install guide: https://aptos.dev/tools/aptos-cli/install-cli/');
+            } else {
+                logger.error(err.message);
+            }
+            process.exit(1);
+        });
 
-    const mockTxHash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
-    const mockAddress = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+        child.on('close', (code) => {
+            if (code === 0) {
+                logger.succeedSpinner('Publish transaction submitted');
 
-    logger.keyValue('Status', '✅ Success', 'green');
-    logger.keyValue('Transaction Hash', mockTxHash, 'cyan');
-    logger.keyValue('Module Address', mockAddress, 'cyan');
-    logger.keyValue('Gas Used', '1,247', 'yellow');
-    logger.keyValue('Network', network, 'yellow');
+                // Try to extract transaction hash from stdout
+                const hashMatch = stdout.match(/Transaction Hash:\s*(0x[0-9a-fA-F]+)/) || stdout.match(/hash:\s*(0x[0-9a-fA-F]+)/i);
+                if (hashMatch) {
+                    const hash = hashMatch[1];
+                    logger.keyValue('Transaction Hash', hash, 'cyan');
+                    logger.keyValue('Explorer', rpcClient.getExplorerUrl(hash), 'cyan');
+                }
 
-    logger.newLine();
-    logger.keyValue('Explorer', rpcClient.getExplorerUrl(mockTxHash), 'cyan');
+                // Print a summary
+                logger.section('📜 CLI Output');
+                process.stdout.write(stdout);
+                resolve();
+            } else {
+                logger.failSpinner('Publish failed');
+                logger.errorDetail('Aptos CLI error', stderr || stdout || 'Unknown error');
+                process.exit(code || 1);
+            }
+        });
+    });
 }
 
 module.exports = deployCommand;

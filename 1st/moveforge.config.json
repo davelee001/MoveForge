@@ -1,0 +1,24 @@
+{
+  "name": "1st",
+  "version": "0.1.0",
+  "networks": {
+    "testnet": {
+      "rpc": "https://aptos.testnet.porto.movementlabs.xyz/v1",
+      "faucet": "https://faucet.testnet.porto.movementlabs.xyz",
+      "explorer": "https://explorer.movementnetwork.xyz"
+    },
+    "devnet": {
+      "rpc": "https://aptos.devnet.porto.movementlabs.xyz/v1",
+      "faucet": "https://faucet.devnet.porto.movementlabs.xyz",
+      "explorer": "https://explorer.movementnetwork.xyz"
+    }
+  },
+  "compiler": {
+    "version": "latest",
+    "optimize": true
+  },
+  "deployment": {
+    "defaultNetwork": "testnet",
+    "gasLimit": 100000
+  }
+}

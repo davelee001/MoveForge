@@ -75,17 +75,17 @@ Outputs:
 - 📊 Pre-state / post-state
 - ❌ Error logs (if any)
 
-### ✅ **4. One-command deployment to Movement Testnet**
-Instant deployment of Move modules:
+### ✅ **4. Deploy Move packages (Aptos CLI)**
+Publish your Move package using the Aptos CLI under the hood:
 
 ```bash
-moveforge deploy --network testnet
+moveforge deploy --network testnet --module ./move
 ```
 
 Outputs:
-- 🔗 Transaction hash
-- 📍 Deployment address
-- 🌐 Block explorer link
+- 🔗 Transaction hash (with explorer link)
+- 📍 Package address (from CLI output)
+- ⛽ Gas used (if provided by CLI)
 
 ---
 
@@ -127,6 +127,31 @@ npm link
 # Verify installation
 moveforge --version
 ```
+
+---
+
+## 🌐 Web UI
+
+Use a lightweight web interface to run CLI commands from your browser.
+
+Start the server:
+
+```bash
+npm run web
+# Optional: choose a port
+PORT=3001 npm run web
+```
+
+Health check endpoint:
+
+```bash
+curl http://localhost:3000/health
+```
+
+Notes:
+- Serves static UI from `public/` and exposes `/api/command` for CLI calls.
+- The UI includes a theme toggle and a Networks panel (list/current/add/switch).
+- If the port is in use, the server prints a helpful error; try a different `PORT`.
 
 ---
 

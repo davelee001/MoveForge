@@ -25,25 +25,56 @@
             --muted: #9ca3af;
         }
 
-        body.light {
-            --bg-gradient-start: #e6f0ff;
-            --bg-gradient-end: #e9f2ff;
+        /* Light Green Theme */
+        body.green {
+            --bg-gradient-start: #e8f7ee;
+            --bg-gradient-end: #d9f3e2;
             --container-bg: #ffffff;
-            --container-border: #dbeafe;
-            --header-start: #e0f2fe;
-            --header-end: #dbeafe;
-            --accent: #1e40af;
-            --accent-strong: #2563eb;
-            --button-start: #2563eb;
-            --button-end: #1d4ed8;
+            --container-border: #c8ead6;
+            --header-start: #d1fae5;
+            --header-end: #a7f3d0;
+            --accent: #047857;
+            --accent-strong: #059669;
+            --button-start: #10b981;
+            --button-end: #059669;
             --input-bg: #ffffff;
-            --input-border: #bfdbfe;
-            --input-focus-bg: #f0f9ff;
+            --input-border: #bbf7d0;
+            --input-focus-bg: #ecfdf5;
             --terminal-bg: #0b1020;
-            --terminal-text: #22c55e;
+            --terminal-text: #10b981;
             --error-text: #ef4444;
             --muted: #6b7280;
         }
+
+        /* Pink Theme */
+        body.pink {
+            --bg-gradient-start: #ffe4e6;
+            --bg-gradient-end: #ffd7dc;
+            --container-bg: #ffffff;
+            --container-border: #fecdd3;
+            --header-start: #fbcfe8;
+            --header-end: #f9a8d4;
+            --accent: #be185d;
+            --accent-strong: #db2777;
+            --button-start: #f472b6;
+            --button-end: #db2777;
+            --input-bg: #ffffff;
+            --input-border: #fecdd3;
+            --input-focus-bg: #fff1f2;
+            --terminal-bg: #0b1020;
+            --terminal-text: #f472b6;
+            --error-text: #ef4444;
+            --muted: #6b7280;
+        }
+
+        /* Force black text for green & pink themes */
+        body.green, body.pink { color: #000; }
+        body.green .header, body.pink .header { color: #000; }
+        body.green .theme-toggle, body.pink .theme-toggle { color: #000; }
+        body.green .command-btn, body.pink .command-btn { color: #000; }
+        body.green .form-group label, body.pink .form-group label { color: #000; }
+        body.green .form-group input, body.pink .form-group input { color: #111; }
+        body.green .version, body.pink .version { color: #000; }
         * {
             margin: 0;
             padding: 0;
@@ -223,7 +254,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+            <button class="theme-toggle" onclick="changeTheme()">Change Theme</button>
             <h1>🔥 MoveForge</h1>
             <p>Next-Generation Developer Framework for Movement Network</p>
         </div>
@@ -303,11 +334,16 @@
     </div>
 
     <script>
-        // Theme init
+        // Theme init (dark blue default, supports green and pink)
         (function initTheme(){
             try {
                 const saved = localStorage.getItem('theme');
-                if (saved === 'light') document.body.classList.add('light');
+                document.body.classList.remove('green', 'pink');
+                if (saved === 'green') {
+                    document.body.classList.add('green');
+                } else if (saved === 'pink') {
+                    document.body.classList.add('pink');
+                }
             } catch {}
         })();
 
@@ -375,12 +411,26 @@
             runCommand('simulate', ['--function', functionName]);
         }
 
-        function toggleTheme() {
-            document.body.classList.toggle('light');
-            try {
-                const isLight = document.body.classList.contains('light');
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            } catch {}
+        function changeTheme() {
+            // Cycle through: dark (default) -> green -> pink -> dark
+            const isGreen = document.body.classList.contains('green');
+            const isPink = document.body.classList.contains('pink');
+
+            document.body.classList.remove('green', 'pink');
+
+            let next = 'dark';
+            if (!isGreen && !isPink) {
+                document.body.classList.add('green');
+                next = 'green';
+            } else if (isGreen) {
+                document.body.classList.add('pink');
+                next = 'pink';
+            } else {
+                // back to dark
+                next = 'dark';
+            }
+
+            try { localStorage.setItem('theme', next); } catch {}
         }
 
         function listNetworks() { runCommand('network', ['list']); }
