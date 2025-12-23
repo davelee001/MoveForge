@@ -75,6 +75,14 @@
         body.green .form-group label, body.pink .form-group label { color: #000; }
         body.green .form-group input, body.pink .form-group input { color: #111; }
         body.green .version, body.pink .version { color: #000; }
+        /* Force white text for default (dark blue) theme */
+        body:not(.green):not(.pink) { color: #fff; }
+        body:not(.green):not(.pink) .header { color: #fff; }
+        body:not(.green):not(.pink) .theme-toggle { color: #fff; }
+        body:not(.green):not(.pink) .command-btn { color: #fff; }
+        body:not(.green):not(.pink) .form-group label { color: #fff; }
+        body:not(.green):not(.pink) .version { color: #fff; }
+        body:not(.green):not(.pink) .command-section h2 { color: #fff; }
         * {
             margin: 0;
             padding: 0;
