@@ -5,6 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔥 MoveForge - Web Interface</title>
     <style>
+        :root {
+            --bg-gradient-start: #0f1c3f;
+            --bg-gradient-end: #1a2847;
+            --container-bg: #1e2d4a;
+            --container-border: #2a3f5f;
+            --header-start: #1a3a5c;
+            --header-end: #0f1f3d;
+            --accent: #60a5fa;
+            --accent-strong: #2a7fbf;
+            --button-start: #1a5c9f;
+            --button-end: #0f3a6f;
+            --input-bg: #142540;
+            --input-border: #2a5a7f;
+            --input-focus-bg: #1a3a5c;
+            --terminal-bg: #0d1528;
+            --terminal-text: #a7f3d0;
+            --error-text: #ff6b6b;
+            --muted: #9ca3af;
+        }
+
+        body.light {
+            --bg-gradient-start: #e6f0ff;
+            --bg-gradient-end: #e9f2ff;
+            --container-bg: #ffffff;
+            --container-border: #dbeafe;
+            --header-start: #e0f2fe;
+            --header-end: #dbeafe;
+            --accent: #1e40af;
+            --accent-strong: #2563eb;
+            --button-start: #2563eb;
+            --button-end: #1d4ed8;
+            --input-bg: #ffffff;
+            --input-border: #bfdbfe;
+            --input-focus-bg: #f0f9ff;
+            --terminal-bg: #0b1020;
+            --terminal-text: #22c55e;
+            --error-text: #ef4444;
+            --muted: #6b7280;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +52,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f1c3f 0%, #1a2847 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -21,19 +60,20 @@
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background: #1e2d4a;
+            background: var(--container-bg);
             border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             overflow: hidden;
-            border: 1px solid #2a3f5f;
+            border: 1px solid var(--container-border);
         }
 
         .header {
-            background: linear-gradient(135deg, #1a3a5c 0%, #0f1f3d 100%);
+            background: linear-gradient(135deg, var(--header-start) 0%, var(--header-end) 100%);
             color: white;
             padding: 30px;
             text-align: center;
-            border-bottom: 2px solid #2a5a7f;
+            border-bottom: 2px solid var(--input-border);
+            position: relative;
         }
 
         .header h1 {
@@ -54,7 +94,7 @@
         }
 
         .command-section h2 {
-            color: #60a5fa;
+            color: var(--accent);
             margin-bottom: 15px;
             font-size: 1.5em;
         }
@@ -67,9 +107,9 @@
         }
 
         .command-btn {
-            background: linear-gradient(135deg, #1a5c9f 0%, #0f3a6f 100%);
-            color: #60a5fa;
-            border: 2px solid #2a7fbf;
+            background: linear-gradient(135deg, var(--button-start) 0%, var(--button-end) 100%);
+            color: var(--accent);
+            border: 2px solid var(--accent-strong);
             padding: 15px 20px;
             border-radius: 8px;
             font-size: 1em;
@@ -81,7 +121,7 @@
         .command-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(96, 165, 250, 0.4);
-            background: linear-gradient(135deg, #2a7fbf 0%, #1a5c9f 100%);
+            background: linear-gradient(135deg, var(--accent-strong) 0%, var(--button-start) 100%);
             color: white;
         }
 
@@ -92,30 +132,30 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #93c5fd;
+            color: var(--accent);
             font-weight: 600;
         }
 
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #2a5a7f;
+            border: 2px solid var(--input-border);
             border-radius: 6px;
             font-size: 1em;
-            background: #142540;
+            background: var(--input-bg);
             color: #e0e7ff;
             transition: border-color 0.3s;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #60a5fa;
-            background: #1a3a5c;
+            border-color: var(--accent);
+            background: var(--input-focus-bg);
         }
 
         .output {
-            background: #1e1e1e;
-            color: #00ff00;
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
             padding: 20px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
@@ -144,8 +184,8 @@
         }
 
         .spinner {
-            border: 3px solid #2a5a7f;
-            border-top: 3px solid #60a5fa;
+            border: 3px solid var(--input-border);
+            border-top: 3px solid var(--accent);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -161,15 +201,29 @@
         .version {
             text-align: center;
             padding: 20px;
-            color: #60a5fa;
+            color: var(--accent);
             font-size: 0.9em;
-            border-top: 1px solid #2a5a7f;
+            border-top: 1px solid var(--input-border);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
             <h1>🔥 MoveForge</h1>
             <p>Next-Generation Developer Framework for Movement Network</p>
         </div>
@@ -209,6 +263,34 @@
                 <button class="command-btn" onclick="simulate()">Run Simulation</button>
             </div>
 
+            <div class="command-section">
+                <h2>Networks</h2>
+                <div class="command-grid">
+                    <button class="command-btn" onclick="listNetworks()">List</button>
+                    <button class="command-btn" onclick="currentNetwork()">Current</button>
+                </div>
+                <div class="form-group">
+                    <label for="netName">Network Name:</label>
+                    <input type="text" id="netName" placeholder="movement">
+                </div>
+                <div class="form-group">
+                    <label for="netUrl">RPC URL (optional for add):</label>
+                    <input type="text" id="netUrl" placeholder="https://.../v1">
+                </div>
+                <div class="form-group">
+                    <label for="netChainId">Chain ID (optional):</label>
+                    <input type="text" id="netChainId" placeholder="e.g., 43">
+                </div>
+                <div class="form-group">
+                    <label for="netFaucet">Faucet URL (optional):</label>
+                    <input type="text" id="netFaucet" placeholder="https://...">
+                </div>
+                <div class="command-grid">
+                    <button class="command-btn" onclick="addNetwork()">Add Network</button>
+                    <button class="command-btn" onclick="switchNetwork()">Switch Network</button>
+                </div>
+            </div>
+
             <div class="loading">
                 <div class="spinner"></div>
                 <p style="margin-top: 10px; color: #60a5fa;">Running command...</p>
@@ -221,6 +303,14 @@
     </div>
 
     <script>
+        // Theme init
+        (function initTheme(){
+            try {
+                const saved = localStorage.getItem('theme');
+                if (saved === 'light') document.body.classList.add('light');
+            } catch {}
+        })();
+
         // Load version on page load
         fetch('/api/version')
             .then(res => res.json())
@@ -254,16 +344,16 @@
 
                 if (result.success) {
                     outputEl.textContent = result.output || 'Command completed successfully';
-                    outputEl.style.color = '#00ff00';
+                    outputEl.style.color = getComputedStyle(document.body).getPropertyValue('--terminal-text').trim() || '#00ff00';
                 } else {
                     outputEl.textContent = result.error || result.output || 'Command failed';
-                    outputEl.style.color = '#ff6b6b';
+                    outputEl.style.color = getComputedStyle(document.body).getPropertyValue('--error-text').trim() || '#ff6b6b';
                 }
             } catch (error) {
                 loadingEl.classList.remove('show');
                 outputEl.classList.add('show');
                 outputEl.textContent = `Error: ${error.message}`;
-                outputEl.style.color = '#ff6b6b';
+                outputEl.style.color = getComputedStyle(document.body).getPropertyValue('--error-text').trim() || '#ff6b6b';
             }
         }
 
@@ -283,6 +373,34 @@
                 return;
             }
             runCommand('simulate', ['--function', functionName]);
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light');
+            try {
+                const isLight = document.body.classList.contains('light');
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            } catch {}
+        }
+
+        function listNetworks() { runCommand('network', ['list']); }
+        function currentNetwork() { runCommand('network', ['current']); }
+        function addNetwork() {
+            const name = document.getElementById('netName').value.trim();
+            const url = document.getElementById('netUrl').value.trim();
+            const chainId = document.getElementById('netChainId').value.trim();
+            const faucet = document.getElementById('netFaucet').value.trim();
+            if (!name) { alert('Enter a network name'); return; }
+            const args = ['add', name];
+            if (url) { args.push('--url', url); }
+            if (chainId) { args.push('--chain-id', chainId); }
+            if (faucet) { args.push('--faucet', faucet); }
+            runCommand('network', args);
+        }
+        function switchNetwork() {
+            const name = document.getElementById('netName').value.trim();
+            if (!name) { alert('Enter a network name to switch'); return; }
+            runCommand('network', ['switch', name]);
         }
     </script>
 </body>
