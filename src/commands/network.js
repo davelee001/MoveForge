@@ -30,8 +30,9 @@ async function networkCommand(action, name, options = {}) {
 async function listNetworks() {
   console.log(chalk.cyan('🌐 Available Networks:\n'));
 
-  const config = configUtil.loadConfig();
-  const currentDefault = configUtil.getDefaultNetwork();
+  const loaded = await configUtil.loadConfig();
+  const config = loaded?.data || {};
+  const currentDefault = configUtil.getDefaultNetwork(config) || 'testnet';
 
   if (!config.networks || Object.keys(config.networks).length === 0) {
     console.log(chalk.yellow('⚠️  No networks configured'));
@@ -45,10 +46,10 @@ async function listNetworks() {
     const nameDisplay = isCurrent ? chalk.green.bold(name) : chalk.white(name);
     
     console.log(`${marker} ${nameDisplay}`);
-    console.log(`  ${chalk.gray('RPC:')} ${network.rpcUrl}`);
-    console.log(`  ${chalk.gray('Chain ID:')} ${network.chainId || 'auto'}`);
-    if (network.faucetUrl) {
-      console.log(`  ${chalk.gray('Faucet:')} ${network.faucetUrl}`);
+    console.log(`  ${chalk.gray('RPC:')} ${network.rpc || network.rpcUrl}`);
+    console.log(`  ${chalk.gray('Chain ID:')} ${network.chain_id || network.chainId || 'auto'}`);
+    if (network.faucet || network.faucetUrl) {
+      console.log(`  ${chalk.gray('Faucet:')} ${network.faucet || network.faucetUrl}`);
     }
     console.log();
   });
@@ -98,20 +99,25 @@ async function addNetwork(name, options) {
     faucetUrl = answers.faucetUrl;
   }
 
-  const config = configUtil.loadConfig();
+  const loaded = await configUtil.loadConfig();
+  const configPath = loaded?.path || path.join(process.cwd(), 'moveforge.config.json');
+  const config = loaded?.data || {};
   
   if (!config.networks) {
     config.networks = {};
   }
 
   config.networks[name] = {
-    rpcUrl: rpcUrl,
-    ...(chainId && { chainId: parseInt(chainId) || chainId }),
-    ...(faucetUrl && { faucetUrl })
+    rpc: rpcUrl,
+    ...(chainId && { chain_id: parseInt(chainId) || chainId }),
+    ...(faucetUrl && { faucet: faucetUrl })
   };
 
+  // Preserve default network if not set
+  if (!config.deployment) config.deployment = {};
+  if (!config.deployment.defaultNetwork) config.deployment.defaultNetwork = 'testnet';
+
   // Save config
-  const configPath = path.join(process.cwd(), 'moveforge.config.json');
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
   console.log(chalk.green(`✅ Network '${name}' added successfully!`));

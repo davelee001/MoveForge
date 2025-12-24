@@ -1,0 +1,10 @@
+{
+  "networks": {
+    "movement": {
+      "rpc": "https://aptos.testnet.porto.movementlabs.xyz/v1"
+    }
+  },
+  "deployment": {
+    "defaultNetwork": "testnet"
+  }
+}
