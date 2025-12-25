@@ -56,7 +56,7 @@ async function deployCommand(options) {
         }
 
         // Compose Aptos CLI publish command
-        const args = ['move', 'publish', '--package-dir', packageDir, '--assume-yes'];
+        const args = ['move', 'publish', '--package-dir', packageDir, '--assume-yes', '--skip-fetch-latest-git-deps'];
 
         // Prefer using RPC URL from config/network
         const rpc = rpcClient.getEndpoint();
