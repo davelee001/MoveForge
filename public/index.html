@@ -344,14 +344,10 @@
     <script>
         // Theme init (dark blue default, supports green and pink)
         (function initTheme(){
+            // Always set blue theme (default) on load
+            document.body.classList.remove('green', 'pink');
             try {
-                const saved = localStorage.getItem('theme');
-                document.body.classList.remove('green', 'pink');
-                if (saved === 'green') {
-                    document.body.classList.add('green');
-                } else if (saved === 'pink') {
-                    document.body.classList.add('pink');
-                }
+                localStorage.setItem('theme', 'dark');
             } catch {}
         })();
 
