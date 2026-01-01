@@ -32,9 +32,8 @@ class Compiler {
         return new Promise((resolve, reject) => {
             const args = ['move', 'compile'];
 
-            if (options.verbose) {
-                args.push('--verbose');
-            }
+            // Note: Aptos CLI compile does not support a --verbose flag.
+            // We still stream stdout/stderr when options.verbose is true.
 
             args.push('--package-dir', absolutePath);
 

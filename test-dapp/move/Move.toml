@@ -1,14 +1,14 @@
 [package]
-name = "test-dapp"
+name = "test_dapp"
 version = "0.1.0"
 authors = ["Your Name <your.email@example.com>"]
 
 [addresses]
-test-dapp = "_"
+test_dapp = "_"
 
 [dependencies]
 AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "main" }
-AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib", rev = "main" }
-MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/move-stdlib", rev = "main" }
+AptosStdlib   = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib",   rev = "main" }
+MoveStdlib    = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/move-stdlib",    rev = "main" }
 
 [dev-dependencies]

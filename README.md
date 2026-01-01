@@ -2,7 +2,7 @@
 
 ### A Next-Generation Developer Framework for the Movement Network
 
-**Build • Test • Simulate • Deploy Move smart contracts — all from one CLI**
+**Where you can Build • Test • Simulate • Deploy Move smart contracts — all from one CLI**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)](https://nodejs.org/)
@@ -75,17 +75,17 @@ Outputs:
 - 📊 Pre-state / post-state
 - ❌ Error logs (if any)
 
-### ✅ **4. One-command deployment to Movement Testnet**
-Instant deployment of Move modules:
+### ✅ **4. Deploy Move packages (Aptos CLI)**
+Publish your Move package using the Aptos CLI under the hood:
 
 ```bash
-moveforge deploy --network testnet
+moveforge deploy --network testnet --module ./move
 ```
 
 Outputs:
-- 🔗 Transaction hash
-- 📍 Deployment address
-- 🌐 Block explorer link
+- 🔗 Transaction hash (with explorer link)
+- 📍 Package address (from CLI output)
+- ⛽ Gas used (if provided by CLI)
 
 ---
 
@@ -127,6 +127,31 @@ npm link
 # Verify installation
 moveforge --version
 ```
+
+---
+
+## 🌐 Web UI
+
+Use a lightweight web interface to run CLI commands from your browser.
+
+Start the server:
+
+```bash
+npm run web
+# Optional: choose a port
+PORT=3001 npm run web
+```
+
+Health check endpoint:
+
+```bash
+curl http://localhost:3000/health
+```
+
+Notes:
+- Serves static UI from `public/` and exposes `/api/command` for CLI calls.
+- The UI includes a theme toggle and a Networks panel (list/current/add/switch).
+- If the port is in use, the server prints a helpful error; try a different `PORT`.
 
 ---
 
@@ -183,6 +208,10 @@ Your deployment will provide a link to view your contract on the Movement Explor
 | `moveforge build` | Compile Move modules | `-p, --path`, `-v, --verbose` |
 | `moveforge simulate` | Run local execution simulation | `-f, --function`, `-a, --args`, `-s, --sender` |
 | `moveforge deploy` | Deploy contract to Movement | `-n, --network`, `-k, --key`, `-m, --module` |
+| `moveforge test` | Run Move unit tests | `-p, --path`, `-v, --verbose` |
+| `moveforge format` | Format `.move` files | `-p, --path`, `-c, --check` |
+| `moveforge lint` | Lint Move code | `-p, --path`, `-f, --fix` |
+| `moveforge network <action>` | Manage networks | `--url`, `--chain-id`, `--faucet` |
 
 ### Examples
 
@@ -198,6 +227,20 @@ moveforge simulate --function mint --args address:0x1 u64:100
 
 # Deploy to devnet
 moveforge deploy --network devnet --key ./private-key.yaml
+ 
+# Run tests for a project
+moveforge test -p ./move --verbose
+
+# Format Move files (check-only)
+moveforge format -p ./move --check
+
+# Lint Move source code
+moveforge lint -p ./move
+
+# Manage networks
+moveforge network list
+moveforge network add movement --url https://aptos.testnet.porto.movementlabs.xyz/v1 --chain-id 43
+moveforge network switch movement
 ```
 
 ---
@@ -217,6 +260,26 @@ your-project/
 ├── .gitignore
 └── README.md
 ```
+
+---
+
+## 🪟 Windows Setup Notes
+
+MoveForge works great on Windows. A few tips:
+
+- Install Node.js 16+ and ensure `node` and `npm` are on PATH.
+- Install the Aptos CLI (needed for `build` and `test`):
+
+```powershell
+# PowerShell
+python --version  # Ensure Python is available
+curl -fsSL "https://aptos.dev/scripts/install_cli.py" | python
+aptos --version   # Verify
+```
+
+- If `aptos` is not recognized, add its install directory to PATH or re-open your terminal.
+- Commands that do NOT require Aptos CLI: `format`, `lint`, `network`.
+- Use PowerShell without piping when testing commands (e.g., `node bin/moveforge.js --help`).
 
 ---
 
@@ -377,3 +440,4 @@ Share your projects built with MoveForge! Open a PR to add your project to this 
 Made with 🔥 by the Movement community
 
 </div>
+

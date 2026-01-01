@@ -28,6 +28,14 @@ class RPCClient {
     }
 
     /**
+     * Override or add a custom RPC endpoint for a network
+     */
+    setCustomEndpoint(network, rpcUrl) {
+        this.networks[network] = rpcUrl;
+        logger.debug(`Configured custom RPC endpoint for ${network}: ${rpcUrl}`);
+    }
+
+    /**
      * Get the current RPC endpoint
      */
     getEndpoint() {
