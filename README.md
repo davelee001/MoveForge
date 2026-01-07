@@ -212,7 +212,6 @@ Your deployment will provide a link to view your contract on the Movement Explor
 | `moveforge format` | Format `.move` files | `-p, --path`, `-c, --check` |
 | `moveforge lint` | Lint Move code | `-p, --path`, `-f, --fix` |
 | `moveforge network <action>` | Manage networks | `--url`, `--chain-id`, `--faucet` |
-| `moveforge track` | Monitor oil supply chain events | `-a, --address`, `-m, --module`, `-b, --batch`, `-n, --network`, `-i, --interval` |
 
 ### Examples
 
@@ -242,13 +241,6 @@ moveforge lint -p ./move
 moveforge network list
 moveforge network add movement --url https://aptos.testnet.porto.movementlabs.xyz/v1 --chain-id 43
 moveforge network switch movement
-
-# Track oil movement (supply chain)
-# Assumes you deployed the test module `oil_supply_chain` from the test-dapp
-moveforge track --address 0x<publisher_address> --module oil_supply_chain --batch BATCH-123 --network testnet --interval 3000
-
-# Show all batches for the module
-moveforge track --address 0x<publisher_address> --module oil_supply_chain
 ```
 
 ---
