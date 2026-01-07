@@ -119,6 +119,14 @@ class RPCClient {
     }
 
     /**
+     * Get transactions for an account
+     */
+    async getAccountTransactions(address, params = {}) {
+        // Params can include { limit, start, with_events }
+        return await this.get(`/accounts/${address}/transactions`, params);
+    }
+
+    /**
      * Wait for transaction confirmation
      */
     async waitForTransaction(txnHash, timeoutMs = 30000) {
