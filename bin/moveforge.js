@@ -18,7 +18,6 @@ const testCommand = require('../src/commands/test');
 const formatCommand = require('../src/commands/format');
 const lintCommand = require('../src/commands/lint');
 const networkCommand = require('../src/commands/network');
-const trackCommand = require('../src/commands/track');
 
 const program = new Command();
 
@@ -96,16 +95,6 @@ program
   .option('-p, --path <path>', 'Path to Move project', './move')
   .option('-f, --fix', 'Automatically fix issues where possible')
   .action(lintCommand);
-
-program
-  .command('track')
-  .description('Track oil movement events emitted by a Move module')
-  .option('-a, --address <address>', 'Publisher account address to scan events for')
-  .option('-m, --module <name>', 'Module name to filter (default: oil_supply_chain)', 'oil_supply_chain')
-  .option('-b, --batch <id>', 'Optional batch_id filter')
-  .option('-n, --network <network>', 'Network (testnet/devnet/mainnet)', 'testnet')
-  .option('-i, --interval <ms>', 'Polling interval in milliseconds', '5000')
-  .action(trackCommand);
 
 // Network management commands
 const networkProgram = program
